@@ -20,7 +20,11 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const url = process.env.DATABASE_URL;
+      const isTiDB = url.includes("tidbcloud.com");
+      _db = drizzle(url, {
+        connection: { ssl: isTiDB ? {} : { rejectUnauthorized: false } },
+      } as any);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;

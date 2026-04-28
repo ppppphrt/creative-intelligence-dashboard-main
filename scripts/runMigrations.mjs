@@ -32,17 +32,14 @@ async function runMigrations() {
     
     console.log(`[Migration] Connecting to database: ${url.hostname}`);
 
-    // Create connection with SSL for TiDB
+    const isTiDB = url.hostname.includes("tidbcloud.com");
     connection = await mysql.createConnection({
       host: url.hostname,
       user: url.username,
       password: url.password,
       database: url.pathname.slice(1),
       port: parseInt(url.port || "3306"),
-      ssl: {}, // TiDB requires SSL
-      waitForConnections: true,
-      connectionLimit: 1,
-      queueLimit: 0,
+      ssl: isTiDB ? {} : { rejectUnauthorized: false },
     });
 
     console.log("[Migration] Connected successfully");
