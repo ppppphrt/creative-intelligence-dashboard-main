@@ -58,11 +58,6 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Favicon route - return 204 No Content to prevent 502 errors
-  app.get('/favicon.ico', (req, res) => {
-    res.status(204).end();
-  });
-
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
