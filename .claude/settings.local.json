@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(pnpm approve-builds *)",
+      "Bash(PNPM_SCRIPT_SHELL=/bin/bash pnpm approve-builds --yes)",
+      "Bash(pnpm rebuild *)",
+      "Bash(pnpm dev *)",
+      "Bash(jobs -l)",
+      "Bash(docker run *)",
+      "Bash(pkill -f \"tsx watch server/_core/index.ts\")",
+      "Read(//private/tmp/**)",
+      "Bash(docker exec *)",
+      "Bash(node --input-type=module)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('hex'\\)\\)\")",
+      "Bash(openssl rand *)"
+    ]
+  }
+}
