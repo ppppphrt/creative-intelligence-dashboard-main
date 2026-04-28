@@ -44,6 +44,10 @@ async function startServer() {
       createContext,
     })
   );
+  // Favicon route - return 204 No Content to prevent 502 errors
+  app.get('/favicon.ico', (req, res) => {
+    res.status(204).end();
+  });
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
