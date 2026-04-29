@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { trpc } from "@/lib/trpc";
+import BrandFilterBar from "@/components/BrandFilterBar";
+import { useBrandFilter } from "@/hooks/useBrandFilter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Lightbulb, TrendingUp, TrendingDown, Minus, AlertTriangle, Layers, Target, Shuffle } from "lucide-react";
@@ -121,7 +123,8 @@ function DuplicateRiskRow({ entity }: { entity: EntityGroup }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function Insights() {
-  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy: "roas", limit: 500 });
+  const { accountSuffix } = useBrandFilter();
+  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy: "roas", limit: 500, accountSuffix });
 
   const { entities, taggedAds, untaggedCount, uniqueConcepts, uniqueHooks, uniqueFormats, uniquePersonas } = useMemo(() => {
     if (!ads) return { entities: [], taggedAds: [], untaggedCount: 0, uniqueConcepts: 0, uniqueHooks: 0, uniqueFormats: 0, uniquePersonas: 0 };
@@ -170,6 +173,7 @@ export default function Insights() {
 
   return (
     <div className="space-y-12">
+      <BrandFilterBar />
       {/* EntityID diversity panel */}
       <section>
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">

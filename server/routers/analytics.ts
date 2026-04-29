@@ -11,69 +11,36 @@ import {
   getTagSuggestions,
 } from "../services/analyticsService";
 
-/**
- * Analytics router
- * Provides aggregated performance data for dashboard analytics views
- */
+const brandInput = z.object({ accountSuffix: z.string().optional() });
+
 export const analyticsRouter = router({
-  /**
-   * Get performance aggregated by concept
-   */
-  getConceptAnalytics: protectedProcedure.query(async () => {
-    return getConceptAnalytics();
-  }),
+  getConceptAnalytics: protectedProcedure
+    .input(brandInput.optional())
+    .query(async ({ input }) => getConceptAnalytics(input?.accountSuffix)),
 
-  /**
-   * Get performance aggregated by hook type
-   */
-  getHookAnalytics: protectedProcedure.query(async () => {
-    return getHookAnalytics();
-  }),
+  getHookAnalytics: protectedProcedure
+    .input(brandInput.optional())
+    .query(async ({ input }) => getHookAnalytics(input?.accountSuffix)),
 
-  /**
-   * Get performance aggregated by format
-   */
-  getFormatAnalytics: protectedProcedure.query(async () => {
-    return getFormatAnalytics();
-  }),
+  getFormatAnalytics: protectedProcedure
+    .input(brandInput.optional())
+    .query(async ({ input }) => getFormatAnalytics(input?.accountSuffix)),
 
-  /**
-   * Get performance aggregated by persona
-   */
-  getPersonaAnalytics: protectedProcedure.query(async () => {
-    return getPersonaAnalytics();
-  }),
+  getPersonaAnalytics: protectedProcedure
+    .input(brandInput.optional())
+    .query(async ({ input }) => getPersonaAnalytics(input?.accountSuffix)),
 
-  /**
-   * Get top performing ads
-   */
-  getTopPerformingAds: protectedProcedure.query(async () => {
-    return getTopPerformingAds(10);
-  }),
+  getTopPerformingAds: protectedProcedure.query(async () => getTopPerformingAds(10)),
 
-  /**
-   * Get underperforming ads
-   */
-  getUnderperformingAds: protectedProcedure.query(async () => {
-    return getUnderperformingAds(10);
-  }),
+  getUnderperformingAds: protectedProcedure.query(async () => getUnderperformingAds(10)),
 
-  /**
-   * Get distinct tag values for autocomplete
-   */
-  getTagSuggestions: protectedProcedure.query(async () => {
-    return getTagSuggestions();
-  }),
+  getTagSuggestions: protectedProcedure.query(async () => getTagSuggestions()),
 
-  /**
-   * Get all ads ranked by a chosen metric
-   */
   getRankedAds: protectedProcedure
     .input(z.object({
       sortBy: z.enum(["roas", "cpa", "spend", "impressions"]).default("roas"),
       limit: z.number().default(200),
+      accountSuffix: z.string().optional(),
     }))
-    .query(async ({ input }) => {
-      return getRankedAds(input.sortBy, input.limit);
-    }),
+    .query(async ({ input }) => getRankedAds(input.sortBy, input.limit, input.accountSuffix)),
 });

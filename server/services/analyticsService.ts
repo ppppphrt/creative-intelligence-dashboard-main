@@ -9,7 +9,12 @@ async function query(db: any, q: any): Promise<Row[]> {
   return (Array.isArray(result[0]) ? result[0] : result) as Row[];
 }
 
-export async function getConceptAnalytics() {
+function accountFilter(suffix?: string) {
+  if (!suffix) return sql`1=1`;
+  return sql`ap.accountId LIKE ${`%${suffix}`}`;
+}
+
+export async function getConceptAnalytics(accountSuffix?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -23,14 +28,14 @@ export async function getConceptAnalytics() {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.concept IS NOT NULL
+      WHERE cl.concept IS NOT NULL AND ${accountFilter(accountSuffix)}
       GROUP BY cl.concept
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] concept:", e); return []; }
 }
 
-export async function getHookAnalytics() {
+export async function getHookAnalytics(accountSuffix?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -44,14 +49,14 @@ export async function getHookAnalytics() {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.hookType IS NOT NULL
+      WHERE cl.hookType IS NOT NULL AND ${accountFilter(accountSuffix)}
       GROUP BY cl.hookType
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] hook:", e); return []; }
 }
 
-export async function getFormatAnalytics() {
+export async function getFormatAnalytics(accountSuffix?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -65,14 +70,14 @@ export async function getFormatAnalytics() {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.format IS NOT NULL
+      WHERE cl.format IS NOT NULL AND ${accountFilter(accountSuffix)}
       GROUP BY cl.format
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] format:", e); return []; }
 }
 
-export async function getPersonaAnalytics() {
+export async function getPersonaAnalytics(accountSuffix?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -86,7 +91,7 @@ export async function getPersonaAnalytics() {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.persona IS NOT NULL
+      WHERE cl.persona IS NOT NULL AND ${accountFilter(accountSuffix)}
       GROUP BY cl.persona
       ORDER BY avgRoas DESC
     `);
@@ -114,7 +119,8 @@ export async function getTagSuggestions() {
 
 export async function getRankedAds(
   sortBy: "roas" | "cpa" | "spend" | "impressions" = "roas",
-  limit = 200
+  limit = 200,
+  accountSuffix?: string,
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -135,7 +141,7 @@ export async function getRankedAds(
         cl.thumbnailUrl, cl.caption, cl.status
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE ap.spend > 0
+      WHERE ap.spend > 0 AND ${accountFilter(accountSuffix)}
       ORDER BY ${sql.raw(orderCol)}
       LIMIT ${limit}
     `);

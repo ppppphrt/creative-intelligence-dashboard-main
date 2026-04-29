@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, TrendingUp, DollarSign, Target, Zap } from "lucide-react";
 import { useState } from "react";
 import DateRangeFilter from "@/components/DateRangeFilter";
+import BrandFilterBar from "@/components/BrandFilterBar";
 
 export default function Dashboard() {
   const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
@@ -35,13 +36,15 @@ export default function Dashboard() {
   return (
     <div className="space-y-10">
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Creative performance overview</p>
         </div>
         <DateRangeFilter onDateRangeChange={setDateRange} />
       </div>
+
+      <BrandFilterBar />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
