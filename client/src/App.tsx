@@ -4,7 +4,8 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Home from "./pages/Home";
+import DashboardLayout from "./components/DashboardLayout";
+import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import FeedbackLoop from "./pages/FeedbackLoop";
 import Insights from "./pages/Insights";
@@ -12,19 +13,19 @@ import Digests from "./pages/Digests";
 import MetaAdsSettings from "./pages/MetaAdsSettings";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/analytics"} component={Analytics} />
-      <Route path={"/feedback"} component={FeedbackLoop} />
-      <Route path={"/insights"} component={Insights} />
-      <Route path={"/digests"} component={Digests} />
-      <Route path={"/meta-settings"} component={MetaAdsSettings} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <DashboardLayout>
+      <Switch>
+        <Route path={"/"} component={Dashboard} />
+        <Route path={"/analytics"} component={Analytics} />
+        <Route path={"/feedback"} component={FeedbackLoop} />
+        <Route path={"/insights"} component={Insights} />
+        <Route path={"/digests"} component={Digests} />
+        <Route path={"/meta-settings"} component={MetaAdsSettings} />
+        <Route path={"/404"} component={NotFound} />
+        <Route component={NotFound} />
+      </Switch>
+    </DashboardLayout>
   );
 }
 

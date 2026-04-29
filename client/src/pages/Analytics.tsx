@@ -612,11 +612,6 @@ export default function Analytics() {
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-2xl font-bold">Analytics</h1>
-        <p className="text-muted-foreground text-sm mt-1">Tag ads directly in the Rankings table — charts update automatically</p>
-      </div>
-
       <Tabs defaultValue="your-ads" className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="your-ads">Your Ads</TabsTrigger>
