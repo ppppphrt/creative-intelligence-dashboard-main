@@ -21,7 +21,7 @@ import {
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, BarChart3, MessageSquare, Mail, Lightbulb, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, BarChart3, MessageSquare, Mail, Lightbulb, Settings, Home } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -259,6 +259,17 @@ function DashboardLayoutContent({
                 </div>
               </div>
             </div>
+          </div>
+        )}
+        {location !== "/" && (
+          <div className="px-4 pt-4">
+            <button
+              onClick={() => setLocation("/")}
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Home className="w-3.5 h-3.5" />
+              Dashboard
+            </button>
           </div>
         )}
         <main className="flex-1 p-4">{children}</main>
