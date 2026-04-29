@@ -1,1 +1,1 @@
-ALTER TABLE `creative_library` ADD COLUMN `notes` text;
+ALTER TABLE `creative_library` ADD COLUMN IF NOT EXISTS `notes` text;
