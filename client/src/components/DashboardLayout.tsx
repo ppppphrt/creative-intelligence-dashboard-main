@@ -272,7 +272,7 @@ function DashboardLayoutContent({
             </button>
           </div>
         )}
-        <main className="flex-1 p-4">{children}</main>
+        <main className={`flex-1 ${location === "/" ? "p-4" : "px-8 py-6 max-w-7xl"}`}>{children}</main>
       </SidebarInset>
     </>
   );
