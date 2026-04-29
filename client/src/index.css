@@ -82,14 +82,14 @@
   --input: oklch(0.87 0.006 242);
   --ring: oklch(0.52 0.24 264);
 
-  /* Dark sidebar (even in light mode — like Linear/Vercel) */
-  --sidebar: oklch(0.165 0.030 264);
-  --sidebar-foreground: oklch(0.86 0.008 242);
-  --sidebar-primary: oklch(0.62 0.22 264);
-  --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.255 0.038 264);
-  --sidebar-accent-foreground: oklch(0.97 0.005 242);
-  --sidebar-border: oklch(0.255 0.025 264);
+  /* Light sidebar */
+  --sidebar: oklch(0.985 0.002 242);
+  --sidebar-foreground: oklch(0.13 0.018 255);
+  --sidebar-primary: oklch(0.52 0.24 264);
+  --sidebar-primary-foreground: oklch(0.97 0.006 264);
+  --sidebar-accent: oklch(0.93 0.006 242);
+  --sidebar-accent-foreground: oklch(0.13 0.018 255);
+  --sidebar-border: oklch(0.87 0.006 242);
   --sidebar-ring: oklch(0.52 0.24 264);
 }
 

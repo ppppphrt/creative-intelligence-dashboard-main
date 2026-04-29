@@ -171,17 +171,17 @@ function DashboardLayoutContent({
             <div className="flex items-center gap-3 px-2 w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-sidebar-accent rounded-lg transition-colors focus:outline-none shrink-0"
+                className="h-8 w-8 flex items-center justify-center hover:bg-sidebar-accent rounded-lg transition-colors focus:outline-none shrink-0 text-muted-foreground hover:text-foreground"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-sidebar-foreground/60" />
+                <PanelLeft className="h-4 w-4" />
               </button>
               {!isCollapsed && (
                 <div className="flex items-center gap-2 min-w-0">
                   <div className="h-6 w-6 rounded-md bg-sidebar-primary/20 flex items-center justify-center shrink-0">
                     <Zap className="h-3.5 w-3.5 text-sidebar-primary" />
                   </div>
-                  <span className="font-semibold text-sm tracking-tight text-sidebar-foreground truncate">
+                  <span className="font-semibold text-sm tracking-tight truncate">
                     Creative Intel
                   </span>
                 </div>
@@ -199,10 +199,10 @@ function DashboardLayoutContent({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
-                      className="h-9 transition-all font-normal text-sidebar-foreground/80 hover:text-sidebar-accent-foreground"
+                      className="h-9 transition-all font-normal"
                     >
                       <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-sidebar-primary" : "text-sidebar-foreground/60"}`}
+                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
                       />
                       <span className="text-sm">{item.label}</span>
                     </SidebarMenuButton>
@@ -217,15 +217,15 @@ function DashboardLayoutContent({
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-sidebar-accent transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none">
                   <Avatar className="h-7 w-7 shrink-0">
-                    <AvatarFallback className="text-xs font-semibold bg-sidebar-primary/20 text-sidebar-primary">
+                    <AvatarFallback className="text-xs font-semibold bg-primary/10 text-primary">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-xs font-medium truncate leading-none text-sidebar-foreground">
+                    <p className="text-xs font-medium truncate leading-none">
                       {user?.name || "User"}
                     </p>
-                    <p className="text-xs text-sidebar-foreground/50 truncate mt-1">
+                    <p className="text-xs text-muted-foreground truncate mt-1">
                       {user?.email || ""}
                     </p>
                   </div>
