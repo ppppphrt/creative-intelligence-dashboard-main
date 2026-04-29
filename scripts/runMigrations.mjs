@@ -70,9 +70,10 @@ async function runMigrations() {
           await connection.execute(statement);
           console.log(`[Migration] ✓ Statement executed`);
         } catch (error) {
-          // Ignore "table already exists" errors
           if (error.code === "ER_TABLE_EXISTS_ERROR") {
             console.log(`[Migration] ℹ Table already exists (skipping)`);
+          } else if (error.code === "ER_DUP_FIELDNAME") {
+            console.log(`[Migration] ℹ Column already exists (skipping)`);
           } else {
             throw error;
           }
