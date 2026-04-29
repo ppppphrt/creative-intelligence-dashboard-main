@@ -24,8 +24,8 @@ const DEV_USER: User = {
 export async function createContext(
   opts: CreateExpressContextOptions
 ): Promise<TrpcContext> {
-  // In development with no OAuth configured, use a local dev user so the app is usable.
-  if (!ENV.oAuthServerUrl && ENV.isProduction === false) {
+  // When OAuth is not configured, bypass auth — works in both dev and production.
+  if (!ENV.oAuthServerUrl) {
     return { req: opts.req, res: opts.res, user: DEV_USER };
   }
 
