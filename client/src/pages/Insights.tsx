@@ -157,10 +157,6 @@ export default function Insights() {
   if (!ads || taggedAds.length === 0) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">AI Insights</h1>
-          <p className="text-muted-foreground text-sm mt-1">EntityID analysis based on Meta Andromeda creative ranking</p>
-        </div>
         <Card>
           <CardContent className="py-12 text-center">
             <Lightbulb className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
@@ -174,13 +170,6 @@ export default function Insights() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">AI Insights</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          EntityID analysis — each unique concept+hook combination = 1 auction ticket in Meta Andromeda
-        </p>
-      </div>
-
       {/* EntityID diversity panel */}
       <section>
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">

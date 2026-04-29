@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, TrendingUp, DollarSign, Target } from "lucide-react";
+import { Loader2, TrendingUp, DollarSign, Target, Zap } from "lucide-react";
 import { useState } from "react";
 import DateRangeFilter from "@/components/DateRangeFilter";
 
@@ -33,60 +33,76 @@ export default function Dashboard() {
   const topConcepts = concepts?.sort((a, b) => parseFloat(b.avgRoas || "0") - parseFloat(a.avgRoas || "0")).slice(0, 5) || [];
 
   return (
-    <div className="space-y-8">
-      {/* Date Range Filter */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filter by Date Range</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <DateRangeFilter onDateRangeChange={setDateRange} />
-        </CardContent>
-      </Card>
+    <div className="space-y-6">
+      {/* Page header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Creative performance overview</p>
+        </div>
+        <DateRangeFilter onDateRangeChange={setDateRange} />
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="relative overflow-hidden">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Spend</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Spend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">฿{totalSpend.toLocaleString("th-TH", { maximumFractionDigits: 0 })}</span>
-              <DollarSign className="w-5 h-5 text-blue-500" />
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-bold tracking-tight">฿{totalSpend.toLocaleString("th-TH", { maximumFractionDigits: 0 })}</span>
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-1">
+                <DollarSign className="w-5 h-5 text-primary" />
+              </div>
             </div>
           </CardContent>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary/20" />
         </Card>
 
-        <Card className="border-l-4 border-l-green-500">
+        <Card className="relative overflow-hidden">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg ROAS</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Avg ROAS</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">{avgRoas.toFixed(2)}</span>
-              <TrendingUp className="w-5 h-5 text-green-500" />
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-bold tracking-tight">{avgRoas.toFixed(2)}x</span>
+              <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center mb-1">
+                <TrendingUp className="w-5 h-5 text-green-600" />
+              </div>
             </div>
           </CardContent>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500/30" />
         </Card>
 
-        <Card className="border-l-4 border-l-purple-500">
+        <Card className="relative overflow-hidden">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg CPA</CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Avg CPA</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">฿{avgCpa.toFixed(2)}</span>
-              <Target className="w-5 h-5 text-purple-500" />
+            <div className="flex items-end justify-between">
+              <span className="text-3xl font-bold tracking-tight">฿{avgCpa.toFixed(2)}</span>
+              <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center mb-1">
+                <Target className="w-5 h-5 text-violet-600" />
+              </div>
             </div>
           </CardContent>
+          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-violet-500/30" />
         </Card>
       </div>
 
       {/* Top Performing Concepts */}
       <Card>
         <CardHeader>
-          <CardTitle>Top Performing Concepts</CardTitle>
-          <CardDescription>Ranked by ROAS</CardDescription>
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Zap className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-base">Top Performing Concepts</CardTitle>
+              <CardDescription className="text-xs">Ranked by ROAS</CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {conceptsLoading ? (
@@ -94,25 +110,27 @@ export default function Dashboard() {
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : topConcepts.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {topConcepts.map((concept, idx) => (
-                <div key={concept.concept} className="flex items-center justify-between p-3 bg-accent/50 rounded-lg hover:bg-accent transition-colors">
+                <div key={concept.concept} className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/40 transition-colors">
                   <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="text-lg font-bold">{idx + 1}</Badge>
+                    <span className="h-6 w-6 rounded-full bg-muted text-xs font-bold flex items-center justify-center text-muted-foreground shrink-0">
+                      {idx + 1}
+                    </span>
                     <div>
-                      <p className="font-medium">{concept.concept}</p>
-                      <p className="text-sm text-muted-foreground">{concept.adsCount} ads</p>
+                      <p className="font-medium text-sm">{concept.concept}</p>
+                      <p className="text-xs text-muted-foreground">{concept.adsCount} ads</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-green-600">ROAS: {concept.avgRoas}</p>
-                    <p className="text-sm text-muted-foreground">CPA: ฿{concept.avgCpa}</p>
+                    <p className="text-sm font-semibold text-green-600">{concept.avgRoas}x ROAS</p>
+                    <p className="text-xs text-muted-foreground">฿{concept.avgCpa} CPA</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">No concepts yet</p>
+            <p className="text-center text-muted-foreground py-8 text-sm">No concepts yet — sync your Meta Ads account to get started</p>
           )}
         </CardContent>
       </Card>
@@ -122,8 +140,8 @@ export default function Dashboard() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Creative Library</CardTitle>
-              <CardDescription>All ads with performance metrics</CardDescription>
+              <CardTitle className="text-base">Creative Library</CardTitle>
+              <CardDescription className="text-xs">All synced ads with tags and performance</CardDescription>
             </div>
             <div className="flex gap-2">
               <Button variant={tagFilter === "all" ? "default" : "outline"} size="sm" onClick={() => setTagFilter("all")}>
