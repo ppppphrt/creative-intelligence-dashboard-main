@@ -73,23 +73,23 @@ function EntityDiversityScore({ entities, totalAds }: { entities: EntityGroup[];
   const barColor = score >= 80 ? "bg-green-500" : score >= 50 ? "bg-amber-500" : "bg-red-500";
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div className="p-4 rounded-lg border bg-card">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <div className="p-6 rounded-xl border bg-card">
         <p className="text-xs text-muted-foreground mb-1">Genuine EntityIDs</p>
         <p className={`text-3xl font-bold ${color}`}>{entityCount}</p>
         <p className="text-xs text-muted-foreground mt-1">target: 10–15</p>
       </div>
-      <div className="p-4 rounded-lg border bg-card">
+      <div className="p-6 rounded-xl border bg-card">
         <p className="text-xs text-muted-foreground mb-1">Auction tickets</p>
         <p className="text-3xl font-bold">{entityCount}</p>
         <p className="text-xs text-muted-foreground mt-1">across {totalAds} ads</p>
       </div>
-      <div className="p-4 rounded-lg border bg-card">
+      <div className="p-6 rounded-xl border bg-card">
         <p className="text-xs text-muted-foreground mb-1">Avg ads / EntityID</p>
         <p className="text-3xl font-bold">{avgAdsPerEntity}</p>
         <p className="text-xs text-muted-foreground mt-1">lower = more unique</p>
       </div>
-      <div className="p-4 rounded-lg border bg-card">
+      <div className="p-6 rounded-xl border bg-card">
         <p className="text-xs text-muted-foreground mb-1">Diversity score</p>
         <p className={`text-3xl font-bold ${color}`}>{score}%</p>
         <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -104,7 +104,7 @@ function DuplicateRiskRow({ entity }: { entity: EntityGroup }) {
   const risk = entity.ads.length >= 5 ? "high" : entity.ads.length >= 3 ? "medium" : null;
   if (!risk) return null;
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${risk === "high" ? "border-red-200 bg-red-50 dark:bg-red-950/20" : "border-amber-200 bg-amber-50 dark:bg-amber-950/20"}`}>
+    <div className={`flex items-start gap-4 p-5 rounded-xl border text-sm ${risk === "high" ? "border-red-200 bg-red-50 dark:bg-red-950/20" : "border-amber-200 bg-amber-50 dark:bg-amber-950/20"}`}>
       <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${risk === "high" ? "text-red-500" : "text-amber-500"}`} />
       <div>
         <p className="font-medium">{entity.concept} × {entity.hookType ?? "no hook"} — {entity.ads.length} ads share 1 EntityID</p>
@@ -169,7 +169,7 @@ export default function Insights() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* EntityID diversity panel */}
       <section>
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function Insights() {
         <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
           <Shuffle className="w-4 h-4" /> Creative Dimensions
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {[
             { label: "Concepts", count: uniqueConcepts, target: 6, desc: "distinct themes" },
             { label: "Hooks", count: uniqueHooks, target: 5, desc: "entry angles" },

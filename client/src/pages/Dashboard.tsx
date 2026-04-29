@@ -33,7 +33,7 @@ export default function Dashboard() {
   const topConcepts = concepts?.sort((a, b) => parseFloat(b.avgRoas || "0") - parseFloat(a.avgRoas || "0")).slice(0, 5) || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
@@ -44,7 +44,7 @@ export default function Dashboard() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="relative overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Spend</CardTitle>
@@ -110,9 +110,9 @@ export default function Dashboard() {
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : topConcepts.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {topConcepts.map((concept, idx) => (
-                <div key={concept.concept} className="flex items-center justify-between p-3 rounded-lg border border-border/60 hover:bg-muted/40 transition-colors">
+                <div key={concept.concept} className="flex items-center justify-between p-4 rounded-xl border border-border/60 hover:bg-muted/40 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className="h-6 w-6 rounded-full bg-muted text-xs font-bold flex items-center justify-center text-muted-foreground shrink-0">
                       {idx + 1}
@@ -159,7 +159,7 @@ export default function Dashboard() {
               <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
             </div>
           ) : creatives && creatives.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {creatives.map((creative) => (
                 <CreativeCard key={creative.creativeId} creative={creative} />
               ))}

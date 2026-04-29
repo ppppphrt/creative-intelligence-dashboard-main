@@ -54,7 +54,7 @@ export default function Digests() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Scheduled Digest Info */}
       <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-blue-200 dark:border-blue-800">
         <CardHeader>

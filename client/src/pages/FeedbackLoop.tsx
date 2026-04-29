@@ -64,7 +64,7 @@ export default function FeedbackLoop() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Winning Concepts */}
       <Card className="border-l-4 border-l-green-500">
         <CardHeader>

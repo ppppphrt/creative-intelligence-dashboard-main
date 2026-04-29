@@ -45,7 +45,7 @@ export default function MetaAdsSettings() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Meta Ads Configuration</h1>

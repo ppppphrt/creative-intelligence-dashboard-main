@@ -611,7 +611,7 @@ export default function Analytics() {
   const Loading = () => <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div>
         <h1 className="text-2xl font-bold">Analytics</h1>
         <p className="text-muted-foreground text-sm mt-1">Tag ads directly in the Rankings table — charts update automatically</p>
