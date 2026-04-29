@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo, Fragment } from "react";
 import { trpc } from "@/lib/trpc";
 import BrandFilterBar from "@/components/BrandFilterBar";
 import { useBrandFilter } from "@/hooks/useBrandFilter";
+import DateFilterBar from "@/components/DateFilterBar";
+import { useDateFilter } from "@/hooks/useDateFilter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -424,9 +426,10 @@ function YourAdsTab() {
   const [sortBy, setSortBy] = useState<SortKey>("roas");
   const [expandedInsight, setExpandedInsight] = useState<string | null>(null);
   const { accountSuffix } = useBrandFilter();
+  const { dateFrom, dateTo } = useDateFilter();
   const utils = trpc.useUtils();
 
-  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy, limit: 300, accountSuffix });
+  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy, limit: 300, accountSuffix, dateFrom, dateTo });
   const { data: suggestions } = trpc.analytics.getTagSuggestions.useQuery();
   const updateTags = trpc.meta.updateTags.useMutation({
     onSuccess: () => {
@@ -626,9 +629,10 @@ function YourAdsTab() {
 function RankingsTab() {
   const [sortBy, setSortBy] = useState<SortKey>("roas");
   const { accountSuffix } = useBrandFilter();
+  const { dateFrom, dateTo } = useDateFilter();
   const utils = trpc.useUtils();
 
-  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy, limit: 200, accountSuffix });
+  const { data: ads, isLoading } = trpc.analytics.getRankedAds.useQuery({ sortBy, limit: 200, accountSuffix, dateFrom, dateTo });
   const { data: suggestions } = trpc.analytics.getTagSuggestions.useQuery();
   const updateTags = trpc.meta.updateTags.useMutation({
     onSuccess: () => {
@@ -832,17 +836,22 @@ function GroupBreakdown({ data, nameKey }: { data: any[]; nameKey: string }) {
 
 export default function Analytics() {
   const { accountSuffix } = useBrandFilter();
+  const { dateFrom, dateTo } = useDateFilter();
 
-  const { data: conceptData,  isLoading: l1 } = trpc.analytics.getConceptAnalytics.useQuery({ accountSuffix });
-  const { data: hookData,     isLoading: l2 } = trpc.analytics.getHookAnalytics.useQuery({ accountSuffix });
-  const { data: formatData,   isLoading: l3 } = trpc.analytics.getFormatAnalytics.useQuery({ accountSuffix });
-  const { data: personaData,  isLoading: l4 } = trpc.analytics.getPersonaAnalytics.useQuery({ accountSuffix });
+  const { data: conceptData,  isLoading: l1 } = trpc.analytics.getConceptAnalytics.useQuery({ accountSuffix, dateFrom, dateTo });
+  const { data: hookData,     isLoading: l2 } = trpc.analytics.getHookAnalytics.useQuery({ accountSuffix, dateFrom, dateTo });
+  const { data: formatData,   isLoading: l3 } = trpc.analytics.getFormatAnalytics.useQuery({ accountSuffix, dateFrom, dateTo });
+  const { data: personaData,  isLoading: l4 } = trpc.analytics.getPersonaAnalytics.useQuery({ accountSuffix, dateFrom, dateTo });
 
   const Loading = () => <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin" /></div>;
 
   return (
     <div className="space-y-10">
-      <BrandFilterBar />
+      <div className="flex flex-wrap gap-3">
+        <DateFilterBar />
+        <div className="w-px bg-border hidden sm:block" />
+        <BrandFilterBar />
+      </div>
       <Tabs defaultValue="your-ads" className="w-full">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="your-ads">Your Ads</TabsTrigger>

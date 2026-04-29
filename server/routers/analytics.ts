@@ -11,24 +11,28 @@ import {
   getTagSuggestions,
 } from "../services/analyticsService";
 
-const brandInput = z.object({ accountSuffix: z.string().optional() });
+const filterInput = z.object({
+  accountSuffix: z.string().optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+}).optional();
 
 export const analyticsRouter = router({
   getConceptAnalytics: protectedProcedure
-    .input(brandInput.optional())
-    .query(async ({ input }) => getConceptAnalytics(input?.accountSuffix)),
+    .input(filterInput)
+    .query(async ({ input }) => getConceptAnalytics(input?.accountSuffix, input?.dateFrom, input?.dateTo)),
 
   getHookAnalytics: protectedProcedure
-    .input(brandInput.optional())
-    .query(async ({ input }) => getHookAnalytics(input?.accountSuffix)),
+    .input(filterInput)
+    .query(async ({ input }) => getHookAnalytics(input?.accountSuffix, input?.dateFrom, input?.dateTo)),
 
   getFormatAnalytics: protectedProcedure
-    .input(brandInput.optional())
-    .query(async ({ input }) => getFormatAnalytics(input?.accountSuffix)),
+    .input(filterInput)
+    .query(async ({ input }) => getFormatAnalytics(input?.accountSuffix, input?.dateFrom, input?.dateTo)),
 
   getPersonaAnalytics: protectedProcedure
-    .input(brandInput.optional())
-    .query(async ({ input }) => getPersonaAnalytics(input?.accountSuffix)),
+    .input(filterInput)
+    .query(async ({ input }) => getPersonaAnalytics(input?.accountSuffix, input?.dateFrom, input?.dateTo)),
 
   getTopPerformingAds: protectedProcedure.query(async () => getTopPerformingAds(10)),
 
@@ -41,6 +45,10 @@ export const analyticsRouter = router({
       sortBy: z.enum(["roas", "cpa", "spend", "impressions"]).default("roas"),
       limit: z.number().default(200),
       accountSuffix: z.string().optional(),
+      dateFrom: z.string().optional(),
+      dateTo: z.string().optional(),
     }))
-    .query(async ({ input }) => getRankedAds(input.sortBy, input.limit, input.accountSuffix)),
+    .query(async ({ input }) =>
+      getRankedAds(input.sortBy, input.limit, input.accountSuffix, input.dateFrom, input.dateTo)
+    ),
 });

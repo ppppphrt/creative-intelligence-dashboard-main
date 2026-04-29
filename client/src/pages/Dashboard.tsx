@@ -5,33 +5,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, TrendingUp, DollarSign, Target, Zap } from "lucide-react";
 import { useState } from "react";
-import DateRangeFilter from "@/components/DateRangeFilter";
 import BrandFilterBar from "@/components/BrandFilterBar";
+import DateFilterBar from "@/components/DateFilterBar";
+import { useBrandFilter } from "@/hooks/useBrandFilter";
+import { useDateFilter } from "@/hooks/useDateFilter";
 
 export default function Dashboard() {
-  const [selectedConcept, setSelectedConcept] = useState<string | null>(null);
-  const [tagFilter, setTagFilter] = useState<"all" | "concept" | "persona" | "hook" | "format">("all");
-  const [dateRange, setDateRange] = useState({ from: new Date(new Date().setDate(new Date().getDate() - 30)), to: new Date() });
+  const [tagFilter, setTagFilter] = useState<"all" | "concept">("all");
+  const { accountSuffix } = useBrandFilter();
+  const { dateFrom, dateTo } = useDateFilter();
 
-  // Fetch creative library
-  const { data: creatives, isLoading: creativesLoading } = trpc.meta.getCreativeLibrary.useQuery({
-    limit: 100,
-  });
+  // Live filtered queries — both respect brand + date
+  const { data: concepts, isLoading: conceptsLoading } = trpc.analytics.getConceptAnalytics.useQuery({ accountSuffix, dateFrom, dateTo });
+  const { data: creatives, isLoading: creativesLoading } = trpc.meta.getCreativeLibrary.useQuery({ limit: 100 });
 
-  // Fetch concept summary
-  const { data: concepts, isLoading: conceptsLoading } = trpc.meta.getConceptSummary.useQuery();
-
-  // Calculate KPIs
-  const totalSpend = concepts?.reduce((sum, c) => sum + parseFloat(c.totalSpend || "0"), 0) || 0;
+  // KPIs computed from filtered concept data
+  const totalSpend = concepts?.reduce((sum, c) => sum + parseFloat(c.totalSpend || "0"), 0) ?? 0;
   const avgRoas = concepts && concepts.length > 0
     ? concepts.reduce((sum, c) => sum + parseFloat(c.avgRoas || "0"), 0) / concepts.length
     : 0;
   const avgCpa = concepts && concepts.length > 0
-    ? concepts.reduce((sum, c) => sum + parseFloat(c.avgCpa || "0"), 0) / concepts.length
+    ? concepts.filter((c) => parseFloat(c.avgCpa || "0") > 0).reduce((sum, c) => sum + parseFloat(c.avgCpa || "0"), 0) /
+      concepts.filter((c) => parseFloat(c.avgCpa || "0") > 0).length
     : 0;
 
-  // Top performing concepts
-  const topConcepts = concepts?.sort((a, b) => parseFloat(b.avgRoas || "0") - parseFloat(a.avgRoas || "0")).slice(0, 5) || [];
+  const topConcepts = [...(concepts ?? [])].sort((a, b) => parseFloat(b.avgRoas || "0") - parseFloat(a.avgRoas || "0")).slice(0, 5);
 
   return (
     <div className="space-y-10">
@@ -41,10 +39,14 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Creative performance overview</p>
         </div>
-        <DateRangeFilter onDateRangeChange={setDateRange} />
       </div>
 
-      <BrandFilterBar />
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
+        <DateFilterBar />
+        <div className="w-px bg-border hidden sm:block" />
+        <BrandFilterBar />
+      </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -103,7 +105,7 @@ export default function Dashboard() {
             </div>
             <div>
               <CardTitle className="text-base">Top Performing Concepts</CardTitle>
-              <CardDescription className="text-xs">Ranked by ROAS</CardDescription>
+              <CardDescription className="text-xs">Ranked by ROAS · filtered by selected period</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -126,14 +128,14 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-green-600">{concept.avgRoas}x ROAS</p>
-                    <p className="text-xs text-muted-foreground">฿{concept.avgCpa} CPA</p>
+                    <p className="text-sm font-semibold text-green-600">{parseFloat(concept.avgRoas || "0").toFixed(2)}x ROAS</p>
+                    <p className="text-xs text-muted-foreground">฿{parseFloat(concept.avgCpa || "0").toFixed(0)} CPA</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8 text-sm">No concepts yet — sync your Meta Ads account to get started</p>
+            <p className="text-center text-muted-foreground py-8 text-sm">No tagged ads in this period — try a wider date range</p>
           )}
         </CardContent>
       </Card>
@@ -224,52 +226,22 @@ function CreativeCard({ creative }: { creative: any }) {
 
         {isEditing ? (
           <div className="space-y-2 mb-3">
-            <Input
-              placeholder="Concept"
-              value={tags.concept}
-              onChange={(e) => setTags({ ...tags, concept: e.target.value })}
-              size={1}
-              className="text-xs"
-            />
-            <Input
-              placeholder="Persona"
-              value={tags.persona}
-              onChange={(e) => setTags({ ...tags, persona: e.target.value })}
-              size={1}
-              className="text-xs"
-            />
-            <Input
-              placeholder="Hook"
-              value={tags.hookType}
-              onChange={(e) => setTags({ ...tags, hookType: e.target.value })}
-              size={1}
-              className="text-xs"
-            />
-            <Input
-              placeholder="Format"
-              value={tags.format}
-              onChange={(e) => setTags({ ...tags, format: e.target.value })}
-              size={1}
-              className="text-xs"
-            />
+            <Input placeholder="Concept" value={tags.concept} onChange={(e) => setTags({ ...tags, concept: e.target.value })} size={1} className="text-xs" />
+            <Input placeholder="Persona"  value={tags.persona}  onChange={(e) => setTags({ ...tags, persona: e.target.value })}  size={1} className="text-xs" />
+            <Input placeholder="Hook"     value={tags.hookType} onChange={(e) => setTags({ ...tags, hookType: e.target.value })} size={1} className="text-xs" />
+            <Input placeholder="Format"   value={tags.format}   onChange={(e) => setTags({ ...tags, format: e.target.value })}   size={1} className="text-xs" />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleSave} className="flex-1">
-                Save
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="flex-1">
-                Cancel
-              </Button>
+              <Button size="sm" onClick={handleSave} className="flex-1">Save</Button>
+              <Button size="sm" variant="outline" onClick={() => setIsEditing(false)} className="flex-1">Cancel</Button>
             </div>
           </div>
         ) : (
           <div className="space-y-2 mb-3">
-            {tags.concept && <Badge variant="secondary" className="text-xs">{tags.concept}</Badge>}
-            {tags.persona && <Badge variant="outline" className="text-xs">{tags.persona}</Badge>}
-            {tags.hookType && <Badge variant="outline" className="text-xs">{tags.hookType}</Badge>}
-            {tags.format && <Badge variant="outline" className="text-xs">{tags.format}</Badge>}
-            <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} className="w-full text-xs">
-              Edit Tags
-            </Button>
+            {tags.concept  && <Badge variant="secondary" className="text-xs">{tags.concept}</Badge>}
+            {tags.persona  && <Badge variant="outline"   className="text-xs">{tags.persona}</Badge>}
+            {tags.hookType && <Badge variant="outline"   className="text-xs">{tags.hookType}</Badge>}
+            {tags.format   && <Badge variant="outline"   className="text-xs">{tags.format}</Badge>}
+            <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)} className="w-full text-xs">Edit Tags</Button>
           </div>
         )}
 

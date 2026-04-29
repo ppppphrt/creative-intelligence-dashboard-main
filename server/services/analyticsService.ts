@@ -14,7 +14,14 @@ function accountFilter(suffix?: string) {
   return sql`ap.accountId LIKE ${`%${suffix}`}`;
 }
 
-export async function getConceptAnalytics(accountSuffix?: string) {
+function dateFilter(dateFrom?: string, dateTo?: string) {
+  if (dateFrom && dateTo) return sql`ap.metricDate BETWEEN ${dateFrom} AND ${dateTo}`;
+  if (dateFrom) return sql`ap.metricDate >= ${dateFrom}`;
+  if (dateTo)   return sql`ap.metricDate <= ${dateTo}`;
+  return sql`1=1`;
+}
+
+export async function getConceptAnalytics(accountSuffix?: string, dateFrom?: string, dateTo?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -28,14 +35,14 @@ export async function getConceptAnalytics(accountSuffix?: string) {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.concept IS NOT NULL AND ${accountFilter(accountSuffix)}
+      WHERE cl.concept IS NOT NULL AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
       GROUP BY cl.concept
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] concept:", e); return []; }
 }
 
-export async function getHookAnalytics(accountSuffix?: string) {
+export async function getHookAnalytics(accountSuffix?: string, dateFrom?: string, dateTo?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -49,14 +56,14 @@ export async function getHookAnalytics(accountSuffix?: string) {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.hookType IS NOT NULL AND ${accountFilter(accountSuffix)}
+      WHERE cl.hookType IS NOT NULL AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
       GROUP BY cl.hookType
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] hook:", e); return []; }
 }
 
-export async function getFormatAnalytics(accountSuffix?: string) {
+export async function getFormatAnalytics(accountSuffix?: string, dateFrom?: string, dateTo?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -70,14 +77,14 @@ export async function getFormatAnalytics(accountSuffix?: string) {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.format IS NOT NULL AND ${accountFilter(accountSuffix)}
+      WHERE cl.format IS NOT NULL AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
       GROUP BY cl.format
       ORDER BY avgRoas DESC
     `);
   } catch (e) { console.error("[Analytics] format:", e); return []; }
 }
 
-export async function getPersonaAnalytics(accountSuffix?: string) {
+export async function getPersonaAnalytics(accountSuffix?: string, dateFrom?: string, dateTo?: string) {
   const db = await getDb();
   if (!db) return [];
   try {
@@ -91,7 +98,7 @@ export async function getPersonaAnalytics(accountSuffix?: string) {
         SUM(ap.clicks)          as totalClicks
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE cl.persona IS NOT NULL AND ${accountFilter(accountSuffix)}
+      WHERE cl.persona IS NOT NULL AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
       GROUP BY cl.persona
       ORDER BY avgRoas DESC
     `);
@@ -121,6 +128,8 @@ export async function getRankedAds(
   sortBy: "roas" | "cpa" | "spend" | "impressions" = "roas",
   limit = 200,
   accountSuffix?: string,
+  dateFrom?: string,
+  dateTo?: string,
 ) {
   const db = await getDb();
   if (!db) return [];
@@ -141,7 +150,7 @@ export async function getRankedAds(
         cl.thumbnailUrl, cl.caption, cl.notes, cl.status
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
-      WHERE ap.spend > 0 AND ${accountFilter(accountSuffix)}
+      WHERE ap.spend > 0 AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
       ORDER BY ${sql.raw(orderCol)}
       LIMIT ${limit}
     `);
