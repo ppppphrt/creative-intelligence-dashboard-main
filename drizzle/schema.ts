@@ -69,6 +69,7 @@ export const creativeLibrary = mysqlTable("creative_library", {
   persona: varchar("persona", { length: 255 }),
   hookType: varchar("hookType", { length: 255 }),
   format: varchar("format", { length: 255 }),
+  notes: text("notes"),
   status: mysqlEnum("status", ["NEED_TAGGING", "READY"]).default("NEED_TAGGING"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

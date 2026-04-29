@@ -55,6 +55,7 @@ export const metaRouter = router({
         persona: z.string().optional().nullable(),
         hookType: z.string().optional().nullable(),
         format: z.string().optional().nullable(),
+        notes: z.string().optional().nullable(),
       })
     )
     .mutation(async ({ input }) => {

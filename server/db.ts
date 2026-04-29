@@ -162,6 +162,7 @@ export async function updateCreativeTags(
     persona?: string | null;
     hookType?: string | null;
     format?: string | null;
+    notes?: string | null;
     status?: 'NEED_TAGGING' | 'READY';
   }
 ) {
@@ -172,6 +173,7 @@ export async function updateCreativeTags(
   if (tags.persona !== undefined) updateData.persona = tags.persona;
   if (tags.hookType !== undefined) updateData.hookType = tags.hookType;
   if (tags.format !== undefined) updateData.format = tags.format;
+  if (tags.notes !== undefined) updateData.notes = tags.notes;
   if (tags.status !== undefined) updateData.status = tags.status;
   return db.update(creativeLibrary).set(updateData).where(eq(creativeLibrary.creativeId, creativeId));
 }

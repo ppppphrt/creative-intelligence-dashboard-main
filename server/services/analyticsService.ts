@@ -138,7 +138,7 @@ export async function getRankedAds(
         ap.spend, ap.roas, ap.cpa, ap.cpm,
         ap.impressions, ap.reach, ap.clicks, ap.purchases, ap.revenue,
         cl.concept, cl.persona, cl.hookType, cl.format,
-        cl.thumbnailUrl, cl.caption, cl.status
+        cl.thumbnailUrl, cl.caption, cl.notes, cl.status
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
       WHERE ap.spend > 0 AND ${accountFilter(accountSuffix)}
