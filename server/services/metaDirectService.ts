@@ -1,7 +1,7 @@
 import { getDb } from "../db";
 import { adsPerformance, creativeLibrary, conceptSummary } from "../../drizzle/schema";
 import { ENV } from "../_core/env";
-import { eq, avg, sum, count } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 const GRAPH_API = "https://graph.facebook.com/v19.0";
 
@@ -40,8 +40,8 @@ async function fetchInsightsDirect(accountId: string) {
     date_preset: "last_30d",
     fields: [
       "ad_id", "ad_name", "campaign_id", "adset_id",
-      "spend", "impressions", "clicks", "reach", "cpm",
-      "actions", "action_values", "purchase_roas",
+      "spend", "actions", "purchase_roas",
+      "date_start", "date_stop",
     ].join(","),
     limit: "500",
   });
@@ -59,12 +59,17 @@ function parseCreative(c: any): CreativeMeta {
     c.object_story_spec?.link_data?.message ||
     null;
 
+  const imageFromLinkData: string | null = c.object_story_spec?.link_data?.picture || null;
+
   const creativeUrl: string | null =
     c.object_story_spec?.video_data?.video_id
       ? `https://www.facebook.com/video.php?v=${c.object_story_spec.video_data.video_id}`
-      : c.object_story_spec?.link_data?.picture || null;
+      : imageFromLinkData;
 
-  return { thumbnailUrl: c.thumbnail_url ?? null, caption, creativeUrl };
+  // For image ads thumbnail_url is often null — fall back to link_data.picture
+  const thumbnailUrl: string | null = c.thumbnail_url ?? imageFromLinkData ?? null;
+
+  return { thumbnailUrl, caption, creativeUrl };
 }
 
 // Uses the Graph batch API — different rate limit bucket from /act_{id}/ads
@@ -120,13 +125,6 @@ const ORDER_ACTION_TYPES = [
   "purchase",
 ];
 
-// Revenue priority: omni covers all channels; fall back to web/app individually
-const REVENUE_ACTION_TYPES = [
-  "omni_purchase",
-  "onsite_web_purchase",
-  "onsite_app_purchase",
-  "onsite_conversion.purchase",
-];
 
 function parseOrders(actions: any[]): number {
   if (!Array.isArray(actions)) return 0;
@@ -137,14 +135,6 @@ function parseOrders(actions: any[]): number {
   return 0;
 }
 
-function parseRevenue(actionValues: any[]): number {
-  if (!Array.isArray(actionValues)) return 0;
-  for (const type of REVENUE_ACTION_TYPES) {
-    const hit = actionValues.find((a) => a.action_type === type);
-    if (hit) return parseFloat(hit.value ?? "0");
-  }
-  return 0;
-}
 
 function parseRoasFromMeta(purchaseRoas: any[]): number {
   if (!Array.isArray(purchaseRoas) || purchaseRoas.length === 0) return 0;
@@ -249,16 +239,13 @@ async function syncAccountDirect(
 
       const adName: string = row.ad_name ?? adId;
       const spend = parseFloat(row.spend ?? "0");
-      const impressions = parseInt(row.impressions ?? "0");
-      const clicks = parseInt(row.clicks ?? "0");
-      const reach = parseInt(row.reach ?? "0");
-      const cpm = parseFloat(row.cpm ?? (impressions > 0 ? ((spend / impressions) * 1000).toFixed(2) : "0"));
       const purchases = parseOrders(row.actions);
-      // Revenue: from action_values first, then fall back to purchase_roas × spend
-      const revenue = parseRevenue(row.action_values) || parseRoasFromMeta(row.purchase_roas) * spend;
-      const roas = spend > 0 ? revenue / spend : 0;
-      const cpa = purchases > 0 ? spend / purchases : 0;
-      console.log(`[MetaDirect] ${adName.slice(0, 40)} | spend=${spend} orders=${purchases} revenue=${revenue} roas=${roas.toFixed(2)}`);
+      // Use Meta's native purchase ROAS directly — most accurate source
+      const roas = parseRoasFromMeta(row.purchase_roas);
+      const cpa = purchases > 0 ? (spend / purchases).toFixed(2) : null;
+      // Use date_stop from Meta's response as the metric date (end of reporting period)
+      const metricDate = row.date_stop ? new Date(row.date_stop) : new Date();
+      console.log(`[MetaDirect] ${adName.slice(0, 40)} | spend=${spend} orders=${purchases} roas=${roas.toFixed(2)} cpa=${cpa ?? "n/a"}`);
 
       // FR-02: merge creative metadata
       const meta = creativeMeta.get(adId);
@@ -273,27 +260,18 @@ async function syncAccountDirect(
           adsetId: row.adset_id ?? null,
           spend: spend.toFixed(2),
           roas: roas.toFixed(4),
-          cpa: cpa.toFixed(2),
-          cpm: cpm.toFixed(2),
-          impressions,
-          reach,
-          clicks,
+          cpa,
           purchases,
-          revenue: revenue.toFixed(2),
-          metricDate: new Date(),
+          metricDate,
         })
         .onDuplicateKeyUpdate({
           set: {
             adName,
             spend: spend.toFixed(2),
             roas: roas.toFixed(4),
-            cpa: cpa.toFixed(2),
-            cpm: cpm.toFixed(2),
-            impressions,
-            reach,
-            clicks,
+            cpa: cpa !== null ? cpa : sql`NULL`,
             purchases,
-            revenue: revenue.toFixed(2),
+            metricDate,
             updatedAt: new Date(),
           },
         });
@@ -309,7 +287,7 @@ async function syncAccountDirect(
         .values({
           creativeId: `${adId}_creative`,
           adId,
-          caption: meta?.caption ?? adName,
+          caption: meta?.caption ?? null,
           thumbnailUrl: meta?.thumbnailUrl ?? null,
           creativeUrl: meta?.creativeUrl ?? null,
           status: "NEED_TAGGING",
@@ -324,6 +302,27 @@ async function syncAccountDirect(
 
   console.log(`[MetaDirect] Synced ${synced} ads for ${account.name}`);
   return { account: account.name, status: "success" as const, adsSynced: synced };
+}
+
+// ─── Public: refresh single ad creative (for expired thumbnails) ─────────────
+
+export async function refreshAdCreative(adId: string): Promise<CreativeMeta | null> {
+  const map = await fetchCreativeMetadataBatch([adId]);
+  const meta = map.get(adId) ?? null;
+  if (!meta) return null;
+
+  const db = await getDb();
+  if (db) {
+    const update: Record<string, any> = { updatedAt: new Date() };
+    if (meta.thumbnailUrl) update.thumbnailUrl = meta.thumbnailUrl;
+    if (meta.creativeUrl)  update.creativeUrl  = meta.creativeUrl;
+    if (meta.caption)      update.caption      = meta.caption;
+    if (Object.keys(update).length > 1) {
+      await db.update(creativeLibrary).set(update).where(eq(creativeLibrary.adId, adId));
+    }
+  }
+
+  return meta;
 }
 
 // ─── Public: full sync ────────────────────────────────────────────────────────

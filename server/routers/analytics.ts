@@ -10,6 +10,7 @@ import {
   getRankedAds,
   getTagSuggestions,
 } from "../services/analyticsService";
+import { refreshAdCreative } from "../services/metaDirectService";
 
 const filterInput = z.object({
   accountSuffix: z.string().optional(),
@@ -42,7 +43,7 @@ export const analyticsRouter = router({
 
   getRankedAds: protectedProcedure
     .input(z.object({
-      sortBy: z.enum(["roas", "cpa", "spend", "impressions"]).default("roas"),
+      sortBy: z.enum(["roas", "cpa", "spend", "purchases"]).default("roas"),
       limit: z.number().default(200),
       accountSuffix: z.string().optional(),
       dateFrom: z.string().optional(),
@@ -51,4 +52,8 @@ export const analyticsRouter = router({
     .query(async ({ input }) =>
       getRankedAds(input.sortBy, input.limit, input.accountSuffix, input.dateFrom, input.dateTo)
     ),
+
+  refreshCreativeThumbnail: protectedProcedure
+    .input(z.object({ adId: z.string() }))
+    .mutation(async ({ input }) => refreshAdCreative(input.adId)),
 });

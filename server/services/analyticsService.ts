@@ -125,7 +125,7 @@ export async function getTagSuggestions() {
 }
 
 export async function getRankedAds(
-  sortBy: "roas" | "cpa" | "spend" | "impressions" = "roas",
+  sortBy: "roas" | "cpa" | "spend" | "purchases" = "roas",
   limit = 200,
   accountSuffix?: string,
   dateFrom?: string,
@@ -135,10 +135,10 @@ export async function getRankedAds(
   if (!db) return [];
 
   const orderCol =
-    sortBy === "cpa"         ? "ap.cpa ASC" :
-    sortBy === "spend"       ? "ap.spend DESC" :
-    sortBy === "impressions" ? "ap.impressions DESC" :
-                               "ap.roas DESC";
+    sortBy === "cpa"       ? "ap.cpa ASC" :
+    sortBy === "spend"     ? "ap.spend DESC" :
+    sortBy === "purchases" ? "ap.purchases DESC" :
+                             "ap.roas DESC";
 
   try {
     return await query(db, sql`
@@ -147,7 +147,7 @@ export async function getRankedAds(
         ap.spend, ap.roas, ap.cpa, ap.cpm,
         ap.impressions, ap.reach, ap.clicks, ap.purchases, ap.revenue,
         cl.concept, cl.persona, cl.hookType, cl.format,
-        cl.thumbnailUrl, cl.caption, cl.notes, cl.status
+        cl.thumbnailUrl, cl.creativeUrl, cl.caption, cl.notes, cl.status
       FROM ads_performance ap
       LEFT JOIN creative_library cl ON ap.adId = cl.adId
       WHERE ap.spend > 0 AND ${accountFilter(accountSuffix)} AND ${dateFilter(dateFrom, dateTo)}
